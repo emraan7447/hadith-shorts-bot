@@ -1,5 +1,5 @@
 streamlit
-google-genai
+google-generativeai
 moviepy==1.0.3
 requests
 elevenlabs>=1.5.0
