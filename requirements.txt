@@ -2,6 +2,6 @@ streamlit
 google-genai
 moviepy==1.0.3
 requests
-elevenlabs>=1.0.0
+elevenlabs>=1.5.0
 arabic-reshaper
 python-bidi
