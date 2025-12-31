@@ -3,7 +3,6 @@ import requests, random, os
 from google import genai
 from moviepy.editor import *
 from elevenlabs.client import ElevenLabs
-from elevenlabs import save
 from arabic_reshaper import reshape
 from bidi.algorithm import get_display
 
@@ -15,11 +14,9 @@ ELEVEN_KEY = "b9ec07e05734006eeef408d7b07cfb69e8eec34e7bcf87e8bbdf026e51f169c3"
 st.set_page_config(page_title="Hadith Automator", page_icon="🌙")
 st.title("🎥 Viral Hadith Shorts Creator")
 
-# --- UTILITY: FIX URDU/ARABIC TEXT ---
 def fix_text(text):
     return get_display(reshape(text))
 
-# --- AUTOMATION: DOWNLOAD FONTS IF MISSING ---
 def check_fonts():
     fonts = {
         "Jameel.ttf": "https://github.com/googlefonts/noto-fonts/raw/main/hinted/ttf/NotoNastaliqUrdu/NotoNastaliqUrdu-Regular.ttf",
@@ -33,8 +30,8 @@ def check_fonts():
 check_fonts()
 
 if st.button("🚀 Generate Viral Hadith Short"):
-    with st.status("Work in Progress...", expanded=True) as status:
-        # 1. Fetch Random Sahih Hadith
+    with st.status("Automating Work...", expanded=True) as status:
+        # 1. Fetch Hadith
         st.write("📖 Fetching Sahih Hadith...")
         res = requests.get("https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/urd-bukhari.json").json()
         hadith = random.choice(res['hadiths'])
@@ -49,19 +46,19 @@ if st.button("🚀 Generate Viral Hadith Short"):
         )
         viral_title = gem_res.text
 
-        # 3. ElevenLabs Voiceover (Updated for v1.0+)
+        # 3. ElevenLabs Voiceover (FIXED for v1.0+)
         st.write("🎙️ Generating soulful Urdu voice...")
         client_eleven = ElevenLabs(api_key=ELEVEN_KEY)
-        audio_stream = client_eleven.text_to_speech.convert(
+        audio_data = client_eleven.text_to_speech.convert(
             text=urdu_text,
-            voice_id="JBFqnCBsd6RMkjVDRZzb", # Default 'Marcus' type voice ID
+            voice_id="JBFqnCBsd6RMkjVDRZzb", # Standard 'Marcus' ID
             model_id="eleven_multilingual_v2",
             output_format="mp3_44100_128",
         )
         
-        # Correct way to save audio in v1.0+
+        # Correct way to handle audio bytes in new SDK
         with open("voice.mp3", "wb") as f:
-            for chunk in audio_stream:
+            for chunk in audio_data:
                 if chunk:
                     f.write(chunk)
 
@@ -74,14 +71,11 @@ if st.button("🚀 Generate Viral Hadith Short"):
 
         # 5. Assemble Video
         st.write("🛠️ Finalizing Video...")
-        # Load background and clip it to 30 seconds
         clip = VideoFileClip("bg.mp4").subclip(0, 30).resize(height=1920).crop(width=1080, height=1920, x_center=540)
         
-        # Fix the text for the screen
         ready_text = fix_text(urdu_text)
         txt = TextClip(ready_text, font="Jameel.ttf", fontsize=60, color='white', method='caption', size=(900, None)).set_duration(clip.duration).set_position(('center', 1100))
         
-        # Combine Audio and Video
         final = CompositeVideoClip([clip, txt]).set_audio(AudioFileClip("voice.mp3"))
         final.write_videofile("short.mp4", fps=24, codec="libx264", audio_codec="aac")
         
