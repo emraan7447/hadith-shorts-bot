@@ -1,6 +1,6 @@
 streamlit
 google-generativeai
-edge-tts
+edge-tts>=7.2.4
 moviepy==1.0.3
 requests
 arabic-reshaper
