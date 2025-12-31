@@ -46,7 +46,7 @@ if st.button("🚀 Generate Viral Hadith Short"):
         try:
             client_gemini = genai.Client(api_key=GEMINI_KEY)
             gem_res = client_gemini.models.generate_content(
-                model="gemini-2.0-flash", 
+                model="gemini-2.5-flash", 
                 contents=f"Short viral YouTube title in Urdu for: {urdu_text}"
             )
             viral_title = gem_res.text
